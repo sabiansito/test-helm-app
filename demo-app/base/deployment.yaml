@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-deployment
+  labels:
+    app: demo-app
+spec:
+  replicas: 1 # Default replica count
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+    spec:
+      containers:
+      - name: demo-app-container
+        image: busybox:1.35
+        command: ["/bin/sh", "-c", "while true; do echo '---'; printenv GREETING; printenv SECRET_KEY; sleep 10; done"]
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+        env:
+        - name: GREETING
+          valueFrom:
+            configMapKeyRef:
+              name: demo-app-config
+              key: message
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: demo-app-secret
+              key: api-key
